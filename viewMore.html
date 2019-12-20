@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>University</title>
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+            integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+            crossorigin="anonymous"
+        />
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-md navbar-dark bg-primary" id="nav-main">
+            <a class="navbar-brand" href="#">Education abroad</a>
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-toggle="collapse"
+                data-target="#navbarsExample04"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarsExample04">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div
+            style="background-image: url('b_AllSoulsquad.jpg'); height: 250px;"
+        >
+            <div class="container">
+                <h1 style="padding-top: 70px;" id="name">
+                    University name
+                </h1>
+
+                <h3 style="font-size: 25px;" class="text-dark" id="rank">
+                    Ranking: 1
+                </h3>
+            </div>
+        </div>
+        <div class="container mb-5" style="margin-top: 50px;">
+            <h1>Description</h1>
+            <p id="desc">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Obcaecati corrupti modi amet nam eos maiores, earum quam soluta?
+                Ea minus omnis officia suscipit quibusdam cum aliquam nisi
+                soluta laborum fuga!
+            </p>
+            <h3>Address</h3>
+            <p id="addr">
+                77 Massachusetts Avenue, Cambridge, US
+            </p>
+            <h4>
+                Reference
+                <small class="text-muted">
+                    You can search for complete data about this university here:
+                </small>
+            </h4>
+            <div id="ref">
+                No Reference
+            </div>
+		</div>
+		<script>
+            let $ = require("jquery");
+		</script>
+		
+		<script>
+			function get(name){
+                if(name=(new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)')).exec(location.search))
+                    return decodeURIComponent(name[1]);
+            }
+
+            let id_get = get('id');
+            console.log(id_get);
+		</script>
+		<script>
+		
+			var remote = require('electron').remote;
+			var user = remote.getGlobal('javaClient');
+            let set = JSON.stringify({info: 'more', json: {id: id_get}});
+
+            remote.getGlobal('json_data').data = '';
+            user.write(set);
+            
+            setTimeout(()=>{
+                var json = remote.getGlobal('json_data').data;
+                
+
+                let uni = JSON.parse(json);
+
+                console.log(uni);
+                for(key in uni)
+                {
+                    $('#name').text(uni[key]['name']);
+                    $('#rank').text(`Rank: ${uni[key]['rank']}`);
+                    $('#desc').text(uni[key]['description']);
+                    $('#addr').text(uni[key]['address']);
+                    $('#ref').html(`<a target='_blank' href='${uni[key]['reference']}' class='btn btn-warning' > University link </a>`)
+                }
+            },100);
+
+		</script>
+
+        <script>
+            require("popper.js");
+        </script>
+        <script>
+            require("bootstrap");
+        </script>
+    </body>
+</html>

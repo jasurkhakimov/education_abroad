@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Education abroad</title>
+        <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+        <meta
+            http-equiv="Content-Security-Policy"
+            content="script-src 'self' 'unsafe-inline';"
+        />
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+            integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+            crossorigin="anonymous"
+        />
+    </head>
+    <body>
+        <nav
+            class="navbar navbar-expand-md navbar-dark bg-primary justify-content-center"
+        >
+            <a class="navbar-brand" href="#">Education Abroad</a>
+        </nav>
+        <h1 class="text-center mt-5">Sign up</h1>
+        <form style="width: 400px;margin: auto;">
+            <div class="form-group">
+                <label for="exampleInputEmail1">Email address</label>
+                <input
+                    type="email"
+                    class="form-control "
+                    id="email"
+                    aria-describedby="emailHelp"
+                    required
+                />
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">Password</label>
+                <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    required
+                />
+            </div>
+            <button class="btn btn-primary">Submit</button>
+
+            <div class="my-3 text-muted">
+                Not registered yet?
+                <a href="register.html" class="text-secondary">Register</a>
+            </div>
+        </form>
+
+        <script>
+            let $ = require("jquery");
+        </script>
+
+        <script>
+            
+        </script>
+        
+        <script>
+            var remote = require('electron').remote;
+
+            var user = remote.getGlobal('javaClient');
+            // console.log(user);
+
+            var session = remote.getGlobal('session').auth;
+
+            console.log(session);
+
+            let get = JSON.stringify({info: 'online_users'});
+
+            $('form').on('submit', function (e) { 
+                e.preventDefault();
+
+                let email = $('#email').val();
+                let password = $('#password').val();
+
+                remote.getGlobal('json_data').data = '';
+                let get = JSON.stringify({info: 'auth', json: {email: email, password: password}});
+                user.write(get);
+
+                setTimeout(()=>{
+                    var json = remote.getGlobal('json_data').data;
+                    console.log(json);
+                    var all = remote.getGlobal('all_universities');
+
+                    remote.getGlobal('session').auth = JSON.parse(json);
+                    remote.getGlobal('json_data').data = '';
+                    var session = remote.getGlobal('session').auth;
+
+                    if(Object.keys(session)[0] == 'error')
+                    {
+                        alert("Invalid email or password");
+                    }else{
+
+                        if(session.currentValue.email == 'admin@admin')
+                        {
+                            get = JSON.stringify({info: 'online_users'});
+
+                            user.write(get);
+                            
+                            setTimeout(()=>{ window.location.replace('admin.html')}, 1000);
+                        }else{
+                            get = JSON.stringify({info: 'all_universities'});
+
+                            user.write(get);
+                            // console.log(remote.getGlobal('json_data').data);
+                            
+                            setTimeout(()=>{
+                                let uni = remote.getGlobal('json_data').data;
+                                remote.getGlobal('all_universities').data = uni;
+                                console.log(remote.getGlobal('all_universities').data);
+                                remote.getGlobal('json_data').data = '';
+
+                                setTimeout(()=>{ window.location.replace('index.html')}, 1000);
+
+                            }, 2500);
+
+                            console.log(json);
+
+                        }
+                        
+                    }
+                }, 500);
+
+            })
+
+            
+
+
+
+        </script>
+        <script>
+            require("popper.js");
+        </script>
+        <script>
+            require("bootstrap");
+        </script>
+    </body>
+</html>

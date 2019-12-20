@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Education abroad</title>
+    <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-primary justify-content-center">
+      <a class="navbar-brand" href="#">Education Abroad</a>
+    </nav>
+
+    <h2 class="text-center mt-5">Sign in</h2>
+    <form style="width: 300px;margin: auto;" id="form-submit">
+      <div class="form-group">
+          <label for="exampleInputName1">Your name</label>
+          <input
+            type="text"
+            class="form-control "
+            id="name"
+            aria-describedby="emailHelp"
+            required
+          />
+      </div>
+      <div class="form-group">
+        <label for="exampleInputEmail1">Email address</label>
+        <input
+          type="email"
+          class="form-control "
+          id="email"
+          aria-describedby="emailHelp"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword1">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword2">Repeat your password</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password2"
+          required
+        />
+      </div>
+      <!-- <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="exampleCheck1" />
+        <label class="form-check-label" for="exampleCheck1">Remember me</label>
+      </div> -->
+	  <button class="btn btn-primary" id="submit">Submit</button>
+	  
+	  <div class="my-3 text-muted">
+		Already registered?
+		<a href="login.html" class="text-secondary">Login</a>
+	</div>
+    </form>
+
+
+	<script src=""></script>
+    <script>let $ = require('jquery');</script>
+
+    <script>
+        var remote = require('electron').remote;
+
+		var user = remote.getGlobal('javaClient');
+		// console.log(user);
+		let get = JSON.stringify({info: 'online_users'});
+
+		$('form').on('submit', function (e) { 
+			e.preventDefault();
+
+			let email = $('#email').val();
+			let password = $('#password').val();
+			let name = $('#name').val();
+			let password2 = $('#password2').val();
+
+			if(password == password2)
+			{
+				let get = JSON.stringify({info: 'register', json: {email: email, password: password, name: name}});
+        remote.getGlobal('json_data').data = '';
+        user.write(get);
+
+				
+				setTimeout(()=>{
+					var json = JSON.parse(remote.getGlobal('json_data').data);
+
+					console.log(Object.keys(json));
+
+					if(Object.keys(json)[0] == 'success'){
+						alert('You have been registered!');
+						window.location.replace('login.html');
+					}else{
+						alert("Something went wrong");
+					}
+				}, 1500);
+				
+			}else{
+				alert('Passwords does not match!');
+			}
+		})
+    
+    </script>
+    <script>require('popper.js');</script>
+    <script>require('bootstrap');</script>
+  </body>
+</html>

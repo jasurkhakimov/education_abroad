@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Education abroad</title>
+        <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+        <meta
+            http-equiv="Content-Security-Policy"
+            content="script-src 'self' 'unsafe-inline';"
+        />
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+            integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+            crossorigin="anonymous"
+        />
+    </head>
+    <body>
+        <nav
+            class="navbar navbar-expand-md navbar-dark bg-primary"
+            id="nav-main"
+        >
+            <a class="navbar-brand" href="#">Education abroad</a>
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-toggle="collapse"
+                data-target="#navbarsExample04"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarsExample04">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                </ul>
+
+                <div class="dropdown mr-5">
+                    <button
+                        class="btn btn-outline-light dropdown-toggle"
+                        type="button"
+                        id="user_name"
+                        data-toggle="dropdown"
+                    >
+                        User
+                    </button>
+                    <div class="dropdown-menu" id="drop">
+                        <a class="dropdown-item" href="#" id="logout"
+                            >Log out</a
+                        >
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="container my-4">
+            <h3 class="text-secondary">Online users: <span id="count" class='text-primary'></span></h3>
+        </div>
+
+        <h1 class="text-center mt-5">Add new university</h1>
+        <form style="width: 400px;margin: auto;">
+            <div class="form-group">
+                <label for="exampleInputEmail1">Rank</label>
+                <input
+                    type="number"
+                    class="form-control "
+                    id="rank"
+                    aria-describedby="emailHelp"
+                    required
+                    min='1'
+                />
+            </div>
+            <div class="form-group">
+                <label for="name">University name</label>
+                <input type="text" class="form-control" id="name" required />
+            </div>
+            <div class="form-group">
+                <label for="name">Description</label>
+                <textarea
+                    class="form-control"
+                    rows="10"
+                    id="desc"
+                    required
+                ></textarea>
+            </div>
+            <div class="form-group">
+                <label for="name">Country</label>
+                <input class="form-control" id="country" required type="text" />
+            </div>
+            <div class="form-group">
+                <label for="name">Address</label>
+                <input class="form-control" id="address" required type="text" />
+            </div>
+            <div class="form-group">
+                <label for="name">Reference</label>
+                <input class="form-control" id="ref" required type="text" />
+            </div>
+
+            <button class="btn btn-primary">Submit</button>
+        </form>
+
+        <script>
+            let $ = require("jquery");
+        </script>
+
+        <script>
+            // function get(name){
+            //     if(name=(new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)')).exec(location.search))
+            //         return decodeURIComponent(name[1]);
+            // }
+
+            // let email_get = get('email');
+            // console.log(email_get);
+        </script>
+
+        <script>
+            var remote = require('electron').remote;
+            var user = remote.getGlobal('javaClient');
+            
+            remote.getGlobal('json_data').data = '';
+            // console.log(data);
+            var online = setInterval(()=>{
+                    get = JSON.stringify({info: 'online_users'});
+
+                    user.write(get);
+                    var data = remote.getGlobal('json_data').data;
+                    remote.getGlobal('json_data').data = '';
+                    $('#count').text(data)
+                }, 2000);
+
+
+
+            $('form').on('submit', function (e) {  
+                clearInterval(online);
+                e.preventDefault();
+                remote.getGlobal('json_data').data = '';
+                
+                let rank = $('#rank').val();
+                let name = $('#name').val();
+                let description = $('#desc').val();
+                let country = $('#country').val();
+                let address = $('#address').val();
+                let reference = 'http://' + $('#ref').val();
+
+                let get = JSON.stringify({info: 'add_uni', json: {name: name, rank: rank, country: country, description: description, address: address, reference: reference}}, undefined, 4);
+
+                console.log(get);
+                // remote.getGlobal('json_data').data = '';
+                user.write(get);
+
+				setTimeout(()=>{
+                    var data = remote.getGlobal('json_data').data;
+                    console.log(data);
+                    if(data == '1')
+                    {
+                        alert('University added');
+
+                        get = JSON.stringify({info: 'all_universities'});
+                        
+                        remote.getGlobal('json_data').data = '';
+                        
+                        user.write(get);
+                        // console.log(remote.getGlobal('json_data').data);
+                        
+                        setTimeout(()=>{
+                            if(remote.getGlobal('json_data').data != '')
+                            {
+                                let uni = remote.getGlobal('json_data').data;
+                                remote.getGlobal('all_universities').data = uni;
+                                console.log(remote.getGlobal('all_universities').data);
+                                remote.getGlobal('json_data').data = '';
+
+                                setTimeout(()=>{ window.location.replace('index.html')}, 1000);
+                            }
+                            
+                        }, 1500);
+                    }
+                }, 2000);
+                
+                
+            })
+
+            var session = remote.getGlobal('session').auth;
+
+            let user_name = session.currentValue.name;
+            $('#user_name').text(user_name);
+            
+            if(session.currentValue.email == 'admin@admin')
+            { 
+                let admin_panel = `<a class="dropdown-item" href="admin.html" id="admin-panel">Admin-panel</a>`;
+                $('#drop').prepend(admin_panel);
+            }
+
+            $('#logout').on('click', function (e) {  
+                e.preventDefault();
+
+                remote.getGlobal('session').auth = '';
+                window.location.replace('login.html');
+            })
+
+        </script>
+        <script>
+            require("popper.js");
+        </script>
+        <script>
+            require("bootstrap");
+        </script>
+    </body>
+</html>

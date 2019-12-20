@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Education abroad</title>
+    <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-dark bg-primary" id="nav-main">
+        <a class="navbar-brand" href="#">Education abroad</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample04">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarsExample04">
+            <ul class="navbar-nav mr-auto" >
+                <li class="nav-item active">
+                    <a class="nav-link" href="index.html">Home</a>
+                </li>
+            </ul>
+
+            <div class="dropdown mr-5">
+                <button class="btn btn-outline-light dropdown-toggle" type="button" id="user_name" data-toggle="dropdown">
+                    User
+                </button>
+                <div class="dropdown-menu" id="drop">
+                  <a class="dropdown-item" href="#" id="logout">Log out</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <nav class="navbar navbar-light bg-light d-flex justify-content-center">
+        <div class="form-inline">
+            <label for="level">Study level:</label>
+            <select name="level" id="level" class="custom-select mx-2">
+                <option value="all">All</option>
+                <option value="1">Undergraduate</option>
+                <option value="2">Graduate</option>
+                <option value="3">PhD</option>
+            </select>
+            <label for="country">Country:</label>
+            <select name="country" id="country" class="custom-select mx-2">
+                <option value="1">United States</option>
+                <option value="2">United Kingdom</option>
+                <option value="3">Switzerland</option>
+                <option value="4">Singapore</option>
+                <option value="5">China</option>
+                <option value="6">Japan</option>
+                <option value="7">Hong Kong</option>
+                <option value="8">Australia</option>
+                <option value="9">Canada</option>
+                <option value="10">South Korea</option>
+                <option value="11">Netherlands</option>
+                <option value="12">France</option>
+                <option value="13">Germany</option>
+                <option value="14">Taiwan</option>
+                <option value="15">Malaysia</option>
+                <option value="16">Argentina</option>
+                <option value="17">Belgium</option>
+                <option value="18">Denmark</option>
+                <option value="19">New Zealand</option>
+                <option value="20">Russia</option>
+                <option value="21">Sweden</option>
+                <option value="22">Mexico</option>
+                <option value="23">Finland</option>
+                <option value="24">Ireland</option>
+                <option value="25">Brazil</option>
+                <option value="26">Norway</option>
+                <option value="27">Chile</option>
+                <option value="28">Italy</option>
+                <option value="29">India</option>
+                <option value="30">Austria</option>
+            </select>
+            <input type="submit" value="Search" class="btn btn-outline-success" id="search">
+        </div>
+    </nav>
+    
+    <div class="container-fluid">
+        <div class="container my-4">
+            <table class="table table-bordered table-hover" id="main-table">
+                <thead class='thead-dark'>
+                    <tr>
+                        <th style="width: 60px;">Ranking</th>
+                        <th>Name</th>
+                        <th>Country</th>
+                        <th>Info</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    
+                </tbody>
+            </table>
+            </div>
+
+    </div>
+    <script>let $ = require('jquery');</script>
+    <script>
+        
+        var remote = require('electron').remote;
+        var user = remote.getGlobal('javaClient');
+
+        var uni_data = remote.getGlobal('all_universities').data;
+
+        // console.log(uni_data);
+        let get = JSON.stringify({info: 'all_universities'});
+        
+        user.write(get);
+        
+        // setInterval(()=>{
+        //     uni_data = remote.getGlobal('json_data')
+        //     // console.log(uni_data)
+        // }, 1000);
+        // console.log(json);
+
+        setTimeout(()=>{
+            let all_uni = JSON.parse(uni_data);
+            let row;
+            for (let uni in all_uni){
+                row += `<tr class='table-body'><td class='text-center'>${all_uni[uni]['rank']}</td>\n<td>${all_uni[uni]['name']}</td>\n<td>${all_uni[uni]['country']}</td>\n<td><a class='btn btn-outline-dark' href='viewMore.html?id=${all_uni[uni]['id']}'>View More</a></td></tr>`;
+            }
+            // console.log(all_uni);
+            
+            $('#table-body').html(row);
+        }, 200);
+
+
+         
+        
+        
+
+
+
+
+        $('#search').on('click', function (e) {  
+            e.preventDefault();
+            
+                let level = $('#level option:selected').val();
+                let  country = $('#country option:selected').val();
+
+                console.log(level);
+                console.log(country);
+
+                if(level == 'all') 
+                {
+                    let all_uni = JSON.parse(uni_data);
+                    let row;
+                    for (let uni in all_uni){
+                        row += `<tr class='table-body'><td class='text-center'>${all_uni[uni]['rank']}</td>\n<td>${all_uni[uni]['name']}</td>\n<td>${all_uni[uni]['country']}</td>\n<td><a class='btn btn-outline-dark' href='viewMore.html?id=${all_uni[uni]['id']}'>View More</a></td></tr>`;
+                    }
+                    // console.log(row);
+                    
+                    $('#table-body').html(row);
+                }else{        
+                    let set = JSON.stringify({info: 'search_uni', json:{country_id: country, level: level}});
+                    console.log(set);
+
+                    remote.getGlobal('json_data').data = '';
+                    user.write(set);
+
+                    setTimeout(()=>{
+                        var all_uni = JSON.parse(remote.getGlobal('json_data').data);
+                        remote.getGlobal('json_data').data = '';
+                        console.log(all_uni);
+                        row = '';
+                        for (let uni in all_uni){
+                            row += `<tr class='table-body'><td class='text-center'>${all_uni[uni]['rank']}</td>\n<td>${all_uni[uni]['name']}</td>\n<td>${all_uni[uni]['country']}</td>\n<td><a class='btn btn-outline-dark' href='viewMore.html?id=${all_uni[uni]['id']}'>View More</a></td></tr>`;
+                        }
+
+                        $('#table-body').html(row);
+                        // console.log(uni_data);
+                        // console.log(all_uni);
+
+                    }, 2000)
+                }
+                
+        })
+         
+        var session = remote.getGlobal('session').auth;
+
+        console.log(session.currentValue);
+
+        let user_name = session.currentValue.name;
+        $('#user_name').text(user_name);
+
+        if(session.currentValue.email == 'admin@admin')
+        {
+                  
+            let admin_panel = `<a class="dropdown-item" href="admin.html" id="admin-panel">Admin-panel</a>`;
+            $('#drop').prepend(admin_panel);
+        }
+
+        $('#logout').on('click', function (e) {  
+            e.preventDefault();
+
+            remote.getGlobal('session').auth = '';
+            window.location.replace('login.html');
+        })
+
+        
+        // setTimeout(()=>{
+        //     $('#table-body').html(row); 
+        // }, 100)
+        // remote.getGlobal('session').auth = json;
+        // var session = remote.getGlobal('session').auth;
+        // console.log(session);
+
+
+
+
+
+    </script>
+
+    <script>require('popper.js');</script>
+    <script>require('bootstrap');</script>
+  </body>
+</html>
